@@ -1,9 +1,9 @@
 import java.util.*;
 import java.io.*;
 public class Main {
-    public static void main(String[] args) {
-        Queue<Character> q = new ArrayDeque<>();
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in()));
+    public static void main(String[] args) throws IOException{
+        Deque<Character> q = new ArrayDeque<>();
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int n = Integer.parseInt(br.readLine());
         StringTokenizer st = new StringTokenizer(br.readLine());
         
@@ -15,6 +15,7 @@ public class Main {
                     while(!q.isEmpty()){
                         System.out.print(q.pollFirst());
                     }
+                    System.out.println();
                 }
                 char c = s.charAt(j);
                 q.add(s.charAt(j));
