@@ -1,209 +1,227 @@
-import java.util.*;
-import java.io.*;
-public class Main {
+import java.util.Scanner;
 
-	static int N,M,K;
-	static int[][] map;
-	static int[][] turn_map;
-	static int[][] player;
-	static int[] exit = new int[2];
-	static int res = 0;
-	static int bx = 0, by = 0, bsize = 0;
-	
-    public static void main(String[] args) throws IOException{
-        // 여기에 코드를 작성해주세요.
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		N = Integer.parseInt(st.nextToken());
-		M = Integer.parseInt(st.nextToken());
-		K = Integer.parseInt(st.nextToken());
-		map = new int[N+1][N+1];
-		turn_map = new int[N+1][N+1];
-		player = new int[M][2];
+// pair 정보를 나타내는 클래스 선언
+class Pair {
+    int x, y;
 
-        for(int i = 1; i <= N; i++) {
-			st = new StringTokenizer(br.readLine());
-			for(int j = 1; j <= N; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
-			}
-		}
-		
-		for(int i = 0; i < M; i++) {
-			st = new StringTokenizer(br.readLine());
-			int x = Integer.parseInt(st.nextToken());
-			int y = Integer.parseInt(st.nextToken());
-			player[i][0] = x;
-			player[i][1] = y;
-		}
-		
-	
-		
-		st = new StringTokenizer(br.readLine());
-		exit[0] = Integer.parseInt(st.nextToken());
-		exit[1] = Integer.parseInt(st.nextToken());
-
-
-        while(K-- > 0) {
-			move_player();
-			
-			boolean escaped = true;
-			for(int i = 0; i < M; i++) {
-				if(!(player[i][0] == exit[0] && player[i][1] == exit[1])) escaped = false;
-			}
-			if(escaped) break;
-			
-			findSquare();
-			rotateBox();
-			rotatePlayer();
-		}
-		System.out.println(res);
-		System.out.println(bx+" "+by);
-
-
+    public Pair(int x, int y){
+        this.x = x;
+        this.y = y;
     }
+};
 
-    static int[] dx = {-1,1,0,0};
-	static int[] dy = {0,0,-1,1};
-	public static void move_player() {
-		
-		for(int t = 0; t < M; t++) {
-			
-			int a = player[t][0];
-			int b = player[t][1];
-			
-			
-			int before = Math.abs(a-exit[0]) + Math.abs(b - exit[1]);
-			for(int i = 0; i < 4; i++) {
-				if(a + dx[i] <= 0 || a+dx[i] > N || b + dy[i] <= 0 || b+dy[i] > N || map[a+dx[i]][b+dy[i]]!=0)continue;
-				int num = Math.abs((a+dx[i]) - exit[0]) + Math.abs((b+dy[i]) - exit[1]);
-				if(before <= num) continue;
-				else {
-					res++;
-					player[t][0] = a + dx[i];
-					player[t][1] = b + dy[i];
-					break;
-				}
-			}
-		}	
-	}
-
-    public static void findSquare() {
-		Queue<int[]> q = new ArrayDeque<>();
-		int max = Integer.MAX_VALUE;
-		for(int i = 0; i < M; i++) {
-			if(player[i][0] == exit[0] && player[i][1] == exit[1]) {
+public class Main {
+    public static final int MAX_N = 10;
+    
+    public static int n, m, k;
+    
+    // 모든 벽들의 상태를 기록해줍니다.
+    public static int[][] board = new int[MAX_N + 1][MAX_N + 1];
+    
+    // 회전의 구현을 편하게 하기 위해 2차원 배열을 하나 더 정의해줍니다.
+    public static int[][] nextBoard = new int[MAX_N + 1][MAX_N + 1];
+    
+    // 참가자의 위치 정보를 기록해줍니다.
+    public static Pair[] traveler = new Pair[MAX_N + 1];
+    
+    // 출구의 위치 정보를 기록해줍니다.
+    public static Pair exits;
+    
+    // 정답(모든 참가자들의 이동 거리 합)을 기록해줍니다.
+    public static int ans;
+    
+    // 회전해야 하는 최소 정사각형을 찾아 기록해줍니다.
+    public static int sx, sy, squareSize;
+    
+    // 모든 참가자를 이동시킵니다.
+    public static void moveAllTraveler() {
+        // m명의 모든 참가자들에 대해 이동을 진행합니다.
+        for(int i = 1; i <= m; i++) {
+            // 이미 출구에 있는 경우 스킵합니다.
+            if(traveler[i].x == exits.x && traveler[i].y == exits.y)
                 continue;
-            }
-			int num = Math.abs(player[i][0] - exit[0]) + Math.abs(player[i][1]-exit[1]);
-			if(max == num) {
-				q.add(new int[] {player[i][0], player[i][1]});
-			}
-			else if(max > num) {
-				max = num;
-				q.clear();
-				q.add(new int[] {player[i][0], player[i][1]});
-			}
-		}
-		
-		int max_len = Integer.MAX_VALUE;
-		if(q.size() >= 2) {
-			int[] num = q.poll();
-			int a = Math.abs(num[0] - exit[0]) + 1;
-			int b = Math.abs(num[1] - exit[1]) + 1;
-			if(a >= b) {
-				if(max_len > a) max_len = a;
-			} else {
-				if(max_len > b) max_len = b;
-			}
-		} else {
-			int[] num = q.poll();
-			int a = Math.abs(num[0] - exit[0]) + 1;
-			int b = Math.abs(num[1] - exit[1]) + 1;
-			if(a >= b) {
-				if(max_len > a) max_len = a;
-			} else {
-				if(max_len > b) max_len = b;
-			}
-		}
-		
-		for(int i = 1; i <= max_len; i++) {
-			for(int j = 1; j <= max_len; j++) {
-				int x = i + max_len - 1;
-				int y = j + max_len - 1;
-				// 출구 있는지 없는지 확인
-				if(!(i <= exit[0] && exit[0] <= x && j <= exit[1] && exit[1] <= y)) {
+            
+            // 행이 다른 경우 행을 이동시켜봅니다.
+            if(traveler[i].x != exits.x) {
+                int nx = traveler[i].x;
+                int ny = traveler[i].y;
+    
+                if(exits.x > nx) nx++;
+                else nx--;
+    
+                // 벽이 없다면 행을 이동시킬 수 있습니다.
+                // 이 경우 행을 이동시키고 바로 다음 참가자로 넘어갑니다.
+                if(board[nx][ny] == 0) {
+                    traveler[i].x = nx;
+                    traveler[i].y = ny;
+                    ans++;
                     continue;
                 }
-				
-				boolean person = false;
-				for(int k = 0; k < M; k++) {
-					if( i <= player[k][0] && player[k][0] <= x && j <= player[k][1] && player[k][1] <= y) {
-						if(!(player[k][0] == exit[0] && player[k][1] == exit[1])) {
-							person = true;
-						}
-					}
-				}
-				
-				if(person) {
-					bx = i;
-					by = j;
-					bsize = max_len;
-					return;
-				}
-			}
-		}
-		
-	}
+            }
+    
+            // 열이 다른 경우 열을 이동시켜봅니다.
+            if(traveler[i].y != exits.y) {
+                int nx = traveler[i].x;
+                int ny = traveler[i].y;
+    
+                if(exits.y > ny) ny++;
+                else ny--;
+    
+                // 벽이 없다면 행을 이동시킬 수 있습니다.
+                // 이 경우 열을 이동시킵니다.
+                if(board[nx][ny] == 0) {
+                    traveler[i].x = nx;
+                    traveler[i].y = ny;
+                    ans++;
+                    continue;
+                }
+            }
+        }
+    }
+    
+    // 한 명 이상의 참가자와 출구를 포함한 가장 작은 정사각형을 찾습니다.
+    public static void findMinimumSquare() {
+        // 가장 작은 정사각형부터 모든 정사각형을 만들어봅니다.
+        for(int sz = 2; sz <= n; sz++) {
+            // 가장 좌상단 r 좌표가 작은 것부터 하나씩 만들어봅니다.
+            for(int x1 = 1; x1 <= n - sz + 1; x1++) {
+                // 가장 좌상단 c 좌표가 작은 것부터 하나씩 만들어봅니다.
+                for(int y1 = 1; y1 <= n - sz + 1; y1++) {
+                    int x2 = x1 + sz - 1;
+                    int y2 = y1 + sz - 1;
+    
+                    // 만약 출구가 해당 정사각형 안에 없다면 스킵합니다.
+                    if(!(x1 <= exits.x && exits.x <= x2 && y1 <= exits.y && exits.y <= y2)) {
+                        continue;
+                    }
+    
+                    // 한 명 이상의 참가자가 해당 정사각형 안에 있는지 판단합니다.
+                    boolean isTravelerIn = false;
+                    for(int l = 1; l <= m; l++) {
+                        if(x1 <= traveler[l].x && traveler[l].x <= x2 && y1 <= traveler[l].y && traveler[l].y <= y2) {
+                            // 출구에 있는 참가자는 제외합니다.
+                            if(!(traveler[l].x == exits.x && traveler[l].y == exits.y)) {
+                                isTravelerIn = true;
+                            }
+                        }
+                    }
+    
+                    // 만약 한 명 이상의 참가자가 해당 정사각형 안에 있다면
+                    // sx, sy, sqaureSize 정보를 갱신하고 종료합니다.
+                    if(isTravelerIn) {
+                        sx = x1;
+                        sy = y1;
+                        squareSize = sz;
+    
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    
+    // 정사각형 내부의 벽을 회전시킵니다.
+    public static void rotateSquare() {
+        // 우선 정사각형 안에 있는 벽들을 1 감소시킵니다.
+        for(int x = sx; x < sx + squareSize; x++)
+            for(int y = sy; y < sy + squareSize; y++) {
+                if(board[x][y] > 0) board[x][y]--;
+            }
+    
+        // 정사각형을 시계방향으로 90' 회전합니다.
+        for(int x = sx; x < sx + squareSize; x++)
+            for(int y = sy; y < sy + squareSize; y++) {
+                // Step 1. (sx, sy)를 (0, 0)으로 옮겨주는 변환을 진행합니다. 
+                int ox = x - sx, oy = y - sy;
+                // Step 2. 변환된 상태에서는 회전 이후의 좌표가 (x, y) -> (y, squareN - x - 1)가 됩니다.
+                int rx = oy, ry = squareSize - ox - 1;
+                // Step 3. 다시 (sx, sy)를 더해줍니다.
+                nextBoard[rx + sx][ry + sy] = board[x][y];
+            }
+    
+        // nextBoard 값을 현재 board에 옮겨줍니다.
+        for(int x = sx; x < sx + squareSize; x++)
+            for(int y = sy; y < sy + squareSize; y++) {
+                board[x][y] = nextBoard[x][y];
+            }
+    }
+    
+    // 모든 참가자들 및 출구를 회전시킵니다.
+    public static void rotateTravelerAndExit() {
+        // m명의 참가자들을 모두 확인합니다.
+        for(int i = 1; i <= m; i++) {
+            int x = traveler[i].x;
+            int y = traveler[i].y;
+            // 해당 참가자가 정사각형 안에 포함되어 있을 때에만 회전시킵니다.
+            if(sx <= x && x < sx + squareSize && sy <= y && y < sy + squareSize) {
+                // Step 1. (sx, sy)를 (0, 0)으로 옮겨주는 변환을 진행합니다. 
+                int ox = x - sx, oy = y - sy;
+                // Step 2. 변환된 상태에서는 회전 이후의 좌표가 (x, y) -> (y, squareN - x - 1)가 됩니다.
+                int rx = oy, ry = squareSize - ox - 1;
+                // Step 3. 다시 (sx, sy)를 더해줍니다.
+                traveler[i].x = rx + sx;
+                traveler[i].y = ry + sy;
+            }
+        }
+    
+        // 출구에도 회전을 진행합니다.
+        int x = exits.x;
+        int y = exits.y;
+        if(sx <= x && x < sx + squareSize && sy <= y && y < sy + squareSize) {
+            // Step 1. (sx, sy)를 (0, 0)으로 옮겨주는 변환을 진행합니다. 
+            int ox = x - sx, oy = y - sy;
+            // Step 2. 변환된 상태에서는 회전 이후의 좌표가 (x, y) -> (y, squareN - x - 1)가 됩니다.
+            int rx = oy, ry = squareSize - ox - 1;
+            // Step 3. 다시 (sx, sy)를 더해줍니다.
+            exits.x = rx + sx;
+            exits.y = ry + sy;
+        }
+    }
 
-	public static void rotateBox() {
-		for(int i = bx; i < bx + bsize; i++) {
-			for(int j = by; j < by+bsize; j++) {
-				if(map[i][j] > 0) map[i][j]--;
-			}
-		}
-		
-		for(int i = bx; i < bx + bsize; i++) {
-			for(int j = by; j < by+bsize; j++) {
-				int ox = i - bx;
-				int oy = j - by;
-				int rx = oy;
-				int ry = bsize - ox - 1;
-				turn_map[rx+bx][ry+by] = map[i][j];
-			}	
-		}
-		
-		for(int i = bx; i < bx + bsize; i++) {
-			for(int j = by; j < by + bsize; j++) {
-				map[i][j] = turn_map[i][j];
-			}
-		}
-	}
-	
-	public static void rotatePlayer() {
-		for(int i  = 0; i < M; i++) {
-			int x = player[i][0];
-			int y = player[i][1];
-			
-			if(bx <= x && x < bx+bsize && by <= y && y < by + bsize) {
-				int ox = x - bx;
-				int oy = y - by;
-				int rx = oy;
-				int ry = bsize - ox - 1;
-				player[i][0] = rx + bx;
-				player[i][1] = ry + by;
-			}
-		}
-		
-		int x = exit[0];
-		int y = exit[1];
-		if(bx <= x && x < bx+bsize && by <= y && y < bx + bsize) {
-			int ox = x - bx;
-			int oy = y - by;
-			int rx = oy;
-			int ry = bsize - ox - 1;
-			exit[0] = rx + bx;
-			exit[1] = ry + by;
-		}
-	}
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        n = sc.nextInt();
+        m = sc.nextInt();
+        k = sc.nextInt();
+        for(int i = 1; i <= n; i++)
+            for(int j = 1; j <= n; j++)
+                board[i][j] = sc.nextInt();
+        
+        for(int i = 1; i <= m; i++) {
+            int x = sc.nextInt();
+            int y = sc.nextInt();
+            traveler[i] = new Pair(x, y);
+        }
 
+        int x = sc.nextInt();
+        int y = sc.nextInt();
+        exits = new Pair(x, y);
+
+        while(k-- > 0) {
+            // 모든 참가자를 이동시킵니다.
+            moveAllTraveler();
+
+            // 모든 사람이 출구로 탈출했는지 판단합니다.
+            boolean isAllEscaped = true;
+            for(int i = 1; i <= m; i++) {
+                if(!(traveler[i].x == exits.x && traveler[i].y == exits.y)) {
+                    isAllEscaped = false;
+                }
+            }
+
+            // 만약 모든 사람이 출구로 탈출했으면 바로 종료합니다.
+            if(isAllEscaped) break;
+
+            // 한 명 이상의 참가자와 출구를 포함한 가장 작은 정사각형을 찾습니다.
+            findMinimumSquare();
+
+            // 정사각형 내부의 벽을 회전시킵니다.
+            rotateSquare();
+            // 모든 참가자들 및 출구를 회전시킵니다.
+            rotateTravelerAndExit();
+        }
+
+        System.out.print(ans + "\n");
+        System.out.print(exits.x + " " + exits.y);
+    }
 }
