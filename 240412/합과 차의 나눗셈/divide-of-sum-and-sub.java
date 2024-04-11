@@ -9,6 +9,6 @@ public class Main {
         double x = a+b;
         double y = a-b;
         double num = Math.round((x/y) * 100) / 100.0;
-        System.out.print(num);
+        System.out.printf("%.2f",num);
     }
 }
