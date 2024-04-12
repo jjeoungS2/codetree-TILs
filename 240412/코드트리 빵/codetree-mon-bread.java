@@ -67,7 +67,7 @@ public class Main {
 				// }
 			}
 			else {
-				for(int i = 0; i < 3; i++) {
+				for(int i = 0; i < m; i++) {
 					if(people_location[i][0] == -1 && people_location[i][1] == -1) continue;
 					else {
 						move_people(i);
