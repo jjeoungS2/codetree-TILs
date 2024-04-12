@@ -89,8 +89,9 @@ public class Main {
 		}
 		System.out.println(t-1);
     }
-    static int[] dx = {-1,0,0,1};
+   static int[] dx = {-1,0,0,1};
 	static int[] dy = {0,-1,1,0};
+	// static boolean[][] sibal;
 	public static void move_people(int idx) {
 		int x = people_location[idx][0];
 		int y = people_location[idx][1];
@@ -100,10 +101,10 @@ public class Main {
 		for(int i = 0; i < 4; i++) {
 			int a = x + dx[i];
 			int b = y + dy[i];
-			if(a <= 0 || a > n || b <= 0 || b >n || map[a][b]==-1)continue;
+			if(a <= 0 || a > n || b <= 0 || b >n || map[a][b]==-1)continue; 
 			visit = new boolean[n+1][n+1];
 			visit[x][y] = true;
-			int num = bfs(a,b,idx);
+			int num = bfs(a,b,idx,near);
 			if(a == people_bread[idx][0] && b == people_bread[idx][1]) {
 				goal++;
 				people_location[idx][0] = -1;
@@ -122,7 +123,7 @@ public class Main {
 	}
 	
 	static boolean[][] visit;
-	public static int bfs(int a,int b, int idx) {
+	public static int bfs(int a,int b, int idx, int near) {
 		Queue<int[]> q = new ArrayDeque<>();
 		q.add(new int[] {a,b,0});
 		if(people_bread[idx][0] == a && people_bread[idx][1] == b) {
@@ -136,6 +137,7 @@ public class Main {
 				int x = index[0] + dx[i];
 				int y = index[1] + dy[i];
 				int cnt = index[2];
+				if(cnt+1 > near) continue;
 				if(x <= 0 || x > n || y <= 0 || y > n || map[x][y] == -1 || visit[x][y]) continue;
 				if(people_bread[idx][0] == x && people_bread[idx][1] == y) {
 					return cnt+1;
