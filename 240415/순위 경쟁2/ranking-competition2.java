@@ -13,14 +13,24 @@ public class Main {
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		s = st.nextToken();
 		num = Integer.parseInt(st.nextToken());
-		if(s.equals("A")) {
+				if(s.equals("A")) {
 			A += num;
 		} else {
 			B += num;
 		}
-		if(A < B) win = "B";
-		else win = "A";
-		res++;
+		if(A < B) {
+			win = "B";
+			res++;
+		}
+		else if(A > B) {
+			win = "A";
+			res++;
+		}
+		else {
+			win = "AB";
+			res = 0;
+		}
+		
 		
 		for(int i = 0; i < n-1; i++) {
 			st = new StringTokenizer(br.readLine());
