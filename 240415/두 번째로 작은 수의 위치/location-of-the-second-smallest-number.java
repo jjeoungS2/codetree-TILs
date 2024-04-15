@@ -16,6 +16,13 @@ public class Main {
         Arrays.sort(list,(o1,o2) -> {
             return o1[0] - o2[0];
         });
-        System.out.print(list[1][1]);
+    
+        int num = list[0][0];
+        for(int i = 1; i < n; i++) {
+        	if(num == list[i][0]) continue;
+        	else {
+                System.out.print(list[i][1]);
+        	}
+        }
     }
 }
