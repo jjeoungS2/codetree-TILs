@@ -22,6 +22,7 @@ public class Main {
         	if(num == list[i][0]) continue;
         	else {
                 System.out.print(list[i][1]);
+                break;
         	}
         }
     }
