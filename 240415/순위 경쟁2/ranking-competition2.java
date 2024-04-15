@@ -1,12 +1,12 @@
 import java.io.*;
 import java.util.*;
 public class Main {
-    	static int A = 0;
+    static int A = 0;
 	static int B = 0;
 	static String win = "";
 	static int res = 0;
     public static void main(String[] args) throws IOException{
-        der br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		int n = Integer.parseInt(br.readLine());
 		String s = "";
 		int num = 0;
