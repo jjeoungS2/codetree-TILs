@@ -14,14 +14,33 @@ public class Main {
 		String win = "";
 		int res = 0;
 		
-		for(int i = 0; i < n; i++) {
-			String[] input = br.readLine().split(" ");
-			char who = input[0].charAt(0);
-			int num = Integer.parseInt(input[1]);
+		String[] input = br.readLine().split(" ");
+		char who = input[0].charAt(0);
+		int num = Integer.parseInt(input[1]);
+		
+		scores.put(who, scores.get(who) + num);
+		
+		String leader = findLeaders(scores);
+		
+		int a = scores.get('A');
+		boolean flag = true;
+		for(int s : scores.values()) {
+			if(a!=s) {
+				flag = false;
+				break;
+			}
+		}
+		if(!flag)res++;
+		
+		
+		for(int i = 1; i < n; i++) {
+			input = br.readLine().split(" ");
+			who = input[0].charAt(0);
+			num = Integer.parseInt(input[1]);
 			
 			scores.put(who, scores.get(who) + num);
 			
-			String leader = findLeaders(scores);
+			leader = findLeaders(scores);
 			
 			if(!leader.equals(win)) {
 				win = leader;
