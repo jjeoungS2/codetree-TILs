@@ -21,7 +21,7 @@ public class Main {
 		scores.put(who, scores.get(who) + num);
 		
 		String leader = findLeaders(scores);
-		
+		win = leader;
 		int a = scores.get('A');
 		boolean flag = true;
 		for(int s : scores.values()) {
